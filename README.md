@@ -13,4 +13,5 @@ Enable building API facades from legacy upstream APIs. Process the XML with a li
 - You can manipulate Kong manually in it's container: Get a shell into the container via ```pongo shell```; Subsequently, you can ```kong migrations bootstrap``` and ```kong start``` to start kong.
 - You can run local spec tests with busted or with ```pongo run```. You can also debug with ```pongo logs -f```
 - A basic test scaffold is in ```spec/```
+- For convenience, you can run Konga. Bring it up with ```docker-compose up -d```. Configure the Kong Admin URL on the host with ```http://host.docker.internal:8001```
 
