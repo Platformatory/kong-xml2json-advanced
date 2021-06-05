@@ -5,7 +5,7 @@ version = "1.0.0-1"
 supported_platforms = {"linux"}
 
 source = {
-  url = "https://",
+  url = "https://github.com/Platformatory/kong-xml2json-advanced",
 }
 
 description = {
