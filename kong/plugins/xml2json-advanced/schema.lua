@@ -8,6 +8,7 @@ return {
       config = {
         type = "record",
         fields = {
+          { xml_src = { type = "string", required = true, default = "body"}},		
           { transforms = { type = "array", required = true, default = {}, elements={
               type = "record",
               fields = {
