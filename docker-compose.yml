@@ -13,3 +13,6 @@ services:
       - 127.0.0.1:1337:1337
     volumes:
       - ./konga_data:/app/kongadata
+    extra_hosts:
+      - "host.docker.internal:host-gateway" 
+        

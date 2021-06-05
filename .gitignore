@@ -4,3 +4,5 @@ servroot
 *.rock
 # exclude Pongo shell history
 .pongo/.ash_history
+
+konga_data/
