@@ -15,7 +15,7 @@ description = {
 }
 
 dependencies = {
-
+  "xml2lua >= 1.4",
 }
 
 build = {

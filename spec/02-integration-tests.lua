@@ -9,7 +9,7 @@ for _, strategy in helpers.each_strategy() do
     setup(function()
 
       local xml_service = bp.services:insert {
-        name = "XML Service",
+        name = "XMLService",
         url = "http://httpbin.org" -- Dummy
       }
 
