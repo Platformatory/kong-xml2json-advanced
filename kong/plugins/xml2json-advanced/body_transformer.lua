@@ -90,6 +90,52 @@ local function iter(config_array)
   end, config_array, 0
 end
 
+local function split(str, sep)
+  local result = {}
+  local regex = ("([^%s]+)"):format(sep)
+  for each in str:gmatch(regex) do
+     table.insert(result, each)
+  end
+  return result
+end
+
+
+local function split_key(obj, key, create_obj)
+    if obj == nil or key == nil then
+      return obj, key
+    end
+
+    if not string.find(key, '%.') then
+      return obj, key
+    end
+
+    local parent
+
+    local list = split(key, '.')
+
+    for k, v in pairs(list) do
+        k = tonumber(k)
+        parent = obj
+        key = v
+
+        if k ~= #list and obj[key] ~= nil and type(obj[key]) ~= "table" then
+          return nil
+        end
+
+        obj = obj[key]
+
+
+        if not create_obj and obj == nil then
+          return nil
+
+        elseif create_obj and k ~= #list and obj == nil then
+          obj = {}
+          parent[key] = obj
+        end
+     end
+
+     return parent, key
+end
 
 function _M.is_xml_body(content_type)
   return content_type and find(lower(content_type), "text/xml", nil, true) or
@@ -101,8 +147,8 @@ function _M.is_body_transform_set(conf)
            #conf.remove.json  > 0 or
            #conf.replace.json > 0 or
            #conf.append.json  > 0
-  end
-  
+end
+
 
 function _M.transform_xml_body(conf, buffered_data)
 
@@ -113,7 +159,10 @@ function _M.transform_xml_body(conf, buffered_data)
 
   -- remove key:value to body
   for _, name in iter(conf.remove.json) do
-    xml_body[name] = nil
+    local obj, key = split_key(xml_body, name, false)
+    if obj ~= nil then
+      obj[key] = nil
+    end
   end
 
   -- replace key:value to body
@@ -131,7 +180,10 @@ function _M.transform_xml_body(conf, buffered_data)
     end
 
     if xml_body[name] and v ~= nil then
-      xml_body[name] = v
+      local obj, key = split_key(xml_body, name, false)
+      if obj ~= nil then
+        obj[key] = v
+      end
     end
   end
 
@@ -149,8 +201,11 @@ function _M.transform_xml_body(conf, buffered_data)
       v = cast_value(v, v_type)
     end
 
-    if not xml_body[name] and v ~= nil then
-      xml_body[name] = v
+    if v ~= nil then
+      local obj, key = split_key(xml_body, name, true)
+      if not obj[key] then
+        obj[key] = v
+      end
     end
 
   end
@@ -170,7 +225,8 @@ function _M.transform_xml_body(conf, buffered_data)
     end
 
     if v ~= nil then
-      xml_body[name] = append_value(xml_body[name],v)
+      local obj, key = split_key(xml_body, name, true)
+      obj[key] = append_value(obj[key],v)
     end
   end
 

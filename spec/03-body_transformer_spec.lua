@@ -13,21 +13,21 @@ describe("Plugin: xml2json-advanced", function()
           json   = {}
         },
         add      = {
-          json   = {"p1:v1", "p3:value:3", "p4:\"v1\"", "p5:-1", "p6:false", "p7:true"},
+          json   = {"p1.p8:v8", "p3:value:3", "p4:\"v1\"", "p5:-1", "p6:false", "p7:true"},
           json_types = {"string", "string", "string", "number", "boolean", "boolean"}
         },
         append   = {
           json   = {}
         },
       }
-      
+
       it("parameter", function()
         local xml = [[<p2>v1</p2>]]
         local body = body_transformer.transform_xml_body(conf, xml)
         local body_json = cjson.decode(body)
-        assert.same({p1 = "v1", p2 = "v1", p3 = "value:3", p4 = '"v1"', p5 = -1, p6 = false, p7 = true}, body_json)
+        assert.same({p1 = {p8 = "v8"}, p2 = "v1", p3 = "value:3", p4 = '"v1"', p5 = -1, p6 = false, p7 = true}, body_json)
       end)
-     
+
     end)
 
     describe("append", function()
@@ -42,27 +42,27 @@ describe("Plugin: xml2json-advanced", function()
           json   = {}
         },
         append   = {
-          json   = {"p1:v1", "p3:\"v1\"", "p4:-1", "p5:false", "p6:true"},
-          json_types = {"string", "string", "number", "boolean", "boolean"}
+          json   = {"p1:v1", "p3:\"v1\"", "p4:-1", "p5:false", "p6:true", "p8.p9:v8"},
+          json_types = {"string", "string", "number", "boolean", "boolean", "string"}
         },
       }
       it("new key:value if key does not exists", function()
         local xml = [[<p2>v1</p2>]]
         local body = body_transformer.transform_xml_body(conf, xml)
         local body_json = cjson.decode(body)
-        assert.same({ p2 = "v1", p1 = {"v1"}, p3 = {'"v1"'}, p4 = {-1}, p5 = {false}, p6 = {true}}, body_json)
+        assert.same({ p2 = "v1", p1 = {"v1"}, p3 = {'"v1"'}, p4 = {-1}, p5 = {false}, p6 = {true}, p8 = {p9 = {"v8"}}}, body_json)
       end)
       it("value if key exists", function()
-       local xml = [[<p1>v2</p1>]]
+       local xml = [[<p1>v2</p1><p8><p9>v9</p9></p8>]]
         local body = body_transformer.transform_xml_body(conf, xml)
         local body_json = cjson.decode(body)
-        assert.same({ p1 = {"v2","v1"}, p3 = {'"v1"'}, p4 = {-1}, p5 = {false}, p6 = {true}}, body_json)
+        assert.same({ p1 = {"v2","v1"}, p3 = {'"v1"'}, p4 = {-1}, p5 = {false}, p6 = {true}, p8 = {p9 = {"v9", "v8"}}}, body_json)
       end)
       it("value in double quotes", function()
         local xml = [[<p3>v2</p3>]]
         local body = body_transformer.transform_xml_body(conf, xml)
         local body_json = cjson.decode(body)
-        assert.same({p1 = {"v1"}, p3 = {"v2",'"v1"'}, p4 = {-1}, p5 = {false}, p6 = {true}}, body_json)
+        assert.same({p1 = {"v1"}, p3 = {"v2",'"v1"'}, p4 = {-1}, p5 = {false}, p6 = {true}, p8 = {p9 = {"v8"}}}, body_json)
       end)
       it("number", function()
         local xml = [[<?xml version='1.0' encoding='us-ascii'?>
@@ -70,7 +70,7 @@ describe("Plugin: xml2json-advanced", function()
         ]]
         local body = body_transformer.transform_xml_body(conf, xml)
         local body_json = cjson.decode(body)
-        assert.same({p1 = {"v1"}, p3 = {'"v1"'}, p4={"v2", -1}, p5 = {false}, p6 = {true}}, body_json)
+        assert.same({p1 = {"v1"}, p3 = {'"v1"'}, p4={"v2", -1}, p5 = {false}, p6 = {true}, p8 = {p9 = {"v8"}}}, body_json)
       end)
       it("boolean", function()
         local xml = [[<?xml version='1.0' encoding='us-ascii'?>
@@ -79,9 +79,9 @@ describe("Plugin: xml2json-advanced", function()
         ]]
         local body = body_transformer.transform_xml_body(conf, xml)
         local body_json = cjson.decode(body)
-        assert.same({p1 = {"v1"}, p3 = {'"v1"'}, p4={-1}, p5 = {"v5", false}, p6 = {"v6", true}}, body_json)
+        assert.same({p1 = {"v1"}, p3 = {'"v1"'}, p4={-1}, p5 = {"v5", false}, p6 = {"v6", true}, p8 = {p9 = {"v8"}}}, body_json)
       end)
-     
+
     end)
 
     describe("remove", function()
@@ -107,7 +107,7 @@ describe("Plugin: xml2json-advanced", function()
         local body = body_transformer.transform_xml_body(conf, xml)
         assert.equals("{}", body)
       end)
-    
+
     end)
 
     describe("replace", function()
@@ -144,7 +144,7 @@ describe("Plugin: xml2json-advanced", function()
         local body_json = cjson.decode(body)
         assert.same({p2 = '"v2"'}, body_json)
       end)
-      
+
       it("number", function()
         local xml = [[<p3>v1</p3>]]
         local body = body_transformer.transform_xml_body(conf, xml)
